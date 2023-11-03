@@ -25,9 +25,13 @@ import androidx.lifecycle.ViewModelProvider
 import android.widget.RadioGroup
 import android.widget.RadioButton
 import androidx.compose.material3.RadioButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.SemanticsProperties.Selected
 
-class ModifyPage : ComponentActivity(){
+class ModifyPage : ComponentActivity() {
     private lateinit var mortgageCalcViewModel: MortgageCalcViewModel
     private lateinit var yearsRadioGroup: RadioGroup
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,19 +55,22 @@ class ModifyPage : ComponentActivity(){
         thirtyYears.text = "30"
         yearsRadioGroup.addView(thirtyYears)
 
-        yearsRadioGroup.setOnCheckedChangeListener{group, checkedID ->
-            if (checkedID == tenYears.id){
+        yearsRadioGroup.setOnCheckedChangeListener { group, checkedID ->
+            if (checkedID == tenYears.id) {
                 mortgageCalcViewModel.setYears(10)
             }
-            if(checkedID == fifteenYears.id){
+            if (checkedID == fifteenYears.id) {
                 mortgageCalcViewModel.setYears(15)
             }
-            if(checkedID == thirtyYears.id){
+            if (checkedID == thirtyYears.id) {
                 mortgageCalcViewModel.setYears(30)
             }
         }
 
-        setContent (){
+        setContent() {
+            var selectedYear by remember {
+                mutableStateOf("15")
+            }
             Column(
                 modifier = Modifier
                     .background(Color.White)
@@ -91,7 +98,24 @@ class ModifyPage : ComponentActivity(){
                         detail = "Years",
                     )
                     Column {
-                        yearsRadioGroup
+
+                        YearRadioButton(
+                            year = "10",
+                            selectedYear = selectedYear,
+                            onYearSelected = { selectedYear = it })
+
+
+                        YearRadioButton(
+                            year = "15",
+                            selectedYear = selectedYear,
+                            onYearSelected = { selectedYear = it })
+
+
+                        YearRadioButton(
+                            year = "30",
+                            selectedYear = selectedYear,
+                            onYearSelected = { selectedYear = it })
+
                     }
                 }
                 Row(
@@ -118,27 +142,33 @@ class ModifyPage : ComponentActivity(){
 
     @Composable
     fun YearRadioButton(
-        year: int,
+        year: String,
         selectedYear: String,
         onYearSelected: (String) -> Unit
-    ){
-        val isSelected = year == selectedYear
+    ) {
+        val isSelected =  selectedYear == year
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .background(Color.Cyan)
                 .padding(vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
-        ){
-            RadioButton(selected = isSelected, onClick = { mortgageCalcViewModel.setYears(Selected) })
+        ) {
+            RadioButton(
+                selected = isSelected,
+                onClick = {
+                    onYearSelected(year)
+                }
+            )
+            Text(text = year)
         }
 
     }
 
 
-
     @Composable
-    fun GridMortgageDetail(detail: String, modifier: Modifier = Modifier){
-        Column (){
+    fun GridMortgageDetail(detail: String, modifier: Modifier = Modifier) {
+        Column() {
             Box(
                 modifier = Modifier
                     .width(80.dp)
@@ -148,7 +178,7 @@ class ModifyPage : ComponentActivity(){
                 contentAlignment = Alignment.Center
             )
             {
-                Text(detail, fontSize = 12.sp, color = Color.Black,  textAlign = TextAlign.Start)
+                Text(detail, fontSize = 12.sp, color = Color.Black, textAlign = TextAlign.Start)
 
             }
         }
