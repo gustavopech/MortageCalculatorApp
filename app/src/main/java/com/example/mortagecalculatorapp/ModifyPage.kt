@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.mortagecalculatorapp
 
 import android.content.Intent
@@ -24,7 +26,12 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import android.widget.RadioGroup
 import android.widget.RadioButton
+import androidx.activity.viewModels
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.TextField
+
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,10 +39,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.SemanticsProperties.Selected
 
 class ModifyPage : ComponentActivity() {
-    private lateinit var mortgageCalcViewModel: MortgageCalcViewModel
+   // private lateinit var mortgageCalcViewModel: MortgageCalcViewModel
     private lateinit var yearsRadioGroup: RadioGroup
     override fun onCreate(savedInstanceState: Bundle?) {
-        mortgageCalcViewModel = ViewModelProvider(this).get(MortgageCalcViewModel::class.java)
+        val mortgageCalcViewModel: MortgageCalcViewModel by viewModels()
+        val amount = intent.getStringExtra("amount")
+        val years = intent.getStringExtra("years")
+        val rate = intent.getStringExtra("rate")
+
+        if (years != null) {
+            mortgageCalcViewModel.setYears(years.toInt())
+        }
+        if (rate != null) {
+            mortgageCalcViewModel.setRate(rate.toFloat())
+        }
+        if (amount != null) {
+            mortgageCalcViewModel.setAmount(amount.toFloat())
+        }
+
         val intent = Intent(this, MainActivity::class.java)
         super.onCreate(savedInstanceState)
 
@@ -69,8 +90,15 @@ class ModifyPage : ComponentActivity() {
 
         setContent() {
             var selectedYear by remember {
-                mutableStateOf("15")
+                mutableStateOf(mortgageCalcViewModel.getYears().toString())
             }
+            var amount by remember {
+                mutableStateOf(mortgageCalcViewModel.getAmount().toString())
+            }
+            var interest_rate by remember {
+                mutableStateOf(mortgageCalcViewModel.getRate().toString())
+            }
+
             Column(
                 modifier = Modifier
                     .background(Color.White)
@@ -126,6 +154,12 @@ class ModifyPage : ComponentActivity() {
                     GridMortgageDetail(
                         detail = "Amount",
                     )
+                    TextField(
+                        value = amount,
+                        onValueChange = {
+                            newAmount -> amount = newAmount
+                        }
+                    )
                 }
                 Row(
                     modifier = Modifier
@@ -135,7 +169,40 @@ class ModifyPage : ComponentActivity() {
                     GridMortgageDetail(
                         detail = "Interest\nRate",
                     )
+                    TextField(
+                        value = interest_rate,
+                        onValueChange = { newRate ->
+                            interest_rate = newRate
+                        }
+                    )
                 }
+                    Row() {
+                        Button(
+
+
+
+                            onClick = {
+                                mortgageCalcViewModel.setAmount(amount.toFloat())
+                                mortgageCalcViewModel.setRate(interest_rate.toFloat())
+                                mortgageCalcViewModel.setYears(selectedYear.toInt())
+
+                                intent.putExtra(
+                                    "years",
+                                    mortgageCalcViewModel.getYears().toString()
+                                )
+                                intent.putExtra(
+                                    "amount",
+                                    mortgageCalcViewModel.getAmount().toString()
+                                )
+                                intent.putExtra("rate", mortgageCalcViewModel.getRate().toString())
+
+                                startActivity(intent)
+                            }
+                        ) {
+                            Text("Save")
+                        }
+                    }
+
             }
         }
     }

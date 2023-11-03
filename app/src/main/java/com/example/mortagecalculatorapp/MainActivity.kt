@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,12 +33,37 @@ import com.example.mortagecalculatorapp.ui.theme.MortageCalculatorAppTheme
 
 
 class MainActivity : ComponentActivity() {
-    private lateinit var mortgageCalcViewModel: MortgageCalcViewModel;
+    //private lateinit var mortgageCalcViewModel;
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mortgageCalcViewModel = ViewModelProvider(this).get(MortgageCalcViewModel::class.java)
+
+        //mortgageCalcViewModel = ViewModelProvider(this).get(MortgageCalcViewModel::class.java)
+       val mortgageCalcViewModel: MortgageCalcViewModel by viewModels()
+
+        //mortgageCalcViewModel.Mortgage()
+        val amount = intent.getStringExtra("amount")
+        val years = intent.getStringExtra("years")
+        val rate = intent.getStringExtra("rate")
+
+        if (years != null) {
+            mortgageCalcViewModel.setYears(years.toInt())
+        }
+        else{
+            mortgageCalcViewModel.setYears(30)
+        }
+        if (rate != null) {
+            mortgageCalcViewModel.setRate(rate.toFloat())
+        }
+        else{
+            mortgageCalcViewModel.setRate(0.035f)
+        }
+        if (amount != null) {
+            mortgageCalcViewModel.setAmount(amount.toFloat())
+        }
+        else{
+            mortgageCalcViewModel.setAmount(100000.0f)
+        }
         val intent = Intent(this, ModifyPage::class.java)
-        mortgageCalcViewModel.Mortgage()
         setContent {
             /*
             Heading of First Page
@@ -112,6 +138,10 @@ class MainActivity : ComponentActivity() {
                 {
                     Button(
                         onClick = {
+                            intent.putExtra("years", mortgageCalcViewModel.getYears().toString())
+                            intent.putExtra("amount", mortgageCalcViewModel.getAmount().toString())
+                            intent.putExtra("rate", mortgageCalcViewModel.getRate().toString())
+
                             startActivity(intent)
                         }
                     ){
