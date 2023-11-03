@@ -217,7 +217,7 @@ class ModifyPage : ComponentActivity() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.Cyan)
+                .background(Color.White)
                 .padding(vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
